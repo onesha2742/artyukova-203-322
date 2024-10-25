@@ -1,0 +1,50 @@
+-- Хаб для клиентов
+CREATE TABLE hub_customer (
+    customer_id INT PRIMARY KEY,  -- Основной бизнес-ключ клиента
+    load_date TIMESTAMP,          -- Дата загрузки записи
+    record_source VARCHAR(50)     -- Источник данных
+);
+-- Хаб для фильмов
+CREATE TABLE hub_film (
+    car_id INT PRIMARY KEY,       -- Основной бизнес-ключ фильма
+    load_date TIMESTAMP,          -- Дата загрузки записи
+    record_source VARCHAR(50)     -- Источник данных
+);
+-- Линк между клиентами и фильмами (заказы)
+CREATE TABLE link_sale (
+    order_id INT PRIMARY KEY,     -- Основной бизнес-ключ заказа
+    customer_id INT,              -- Внешний ключ на клиента
+    film_id INT,                  -- Внешний ключ на фильм
+    load_date TIMESTAMP,          -- Дата загрузки записи
+    record_source VARCHAR(50),    -- Источник данных
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),  -- Связь с сателлитом для клиентов
+    FOREIGN KEY (film_id) REFERENCES films(film_id)  -- Связь с сателлитом для фильмов
+);
+-- Сателлит с деталями о клиенте
+CREATE TABLE sat_customer_details (
+    customer_id INT,                   -- Внешний ключ на хаб клиента
+    customer_firstname VARCHAR(50),    -- Имя клиента
+    customer_lastname VARCHAR(50),     -- Фамилия клиента
+    customer_phonenumber VARCHAR(12)   -- Телефон клиента
+    effective_from TIMESTAMP,          -- Дата начала действия записи
+    effective_to TIMESTAMP,            -- Дата окончания действия записи
+    load_date TIMESTAMP,               -- Дата загрузки записи
+    record_source VARCHAR(50),         -- Источник данных
+    PRIMARY KEY (customer_id, effective_from),
+    FOREIGN KEY (customer_id) REFERENCES hub_customer(customer_id)
+);
+-- Сателлит с деталями о фильме
+CREATE TABLE sat_film_details (
+    film_id INT,                   -- Внешний ключ на хаб фильма
+    film_id INT PRIMARY KEY,       -- ID фильма
+    film_name VARCHAR(100),	   -- Название фильма
+    film_release_date INT,	   -- Год выпуска фильма
+    genre_name VARCHAR(50)         -- Название жанра
+    film_price DECIMAL(10, 2),     -- Стоимость проката
+    effective_from TIMESTAMP,      -- Дата начала действия записи
+    effective_to TIMESTAMP,        -- Дата окончания действия записи
+    load_date TIMESTAMP,           -- Дата загрузки записи
+    record_source VARCHAR(50),     -- Источник данных
+    PRIMARY KEY (film_id, effective_from),
+    FOREIGN KEY (film_id) REFERENCES hub_film(film_id)
+);
